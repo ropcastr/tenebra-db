@@ -13,7 +13,7 @@
   [![GitHub stars](https://img.shields.io/github/stars/ropcastr/tenebra-db?style=social)](https://github.com/ropcastr/tenebra-db/stargazers)
   [![GitHub forks](https://img.shields.io/github/forks/ropcastr/tenebra-db?style=social)](https://github.com/ropcastr/tenebra-db/network/members)
   <br>
-  <sub>Feito com ❤️ na FATEC São José dos Campos</sub>
+  <sub>Feito com ❤️ por um aluno do curso de Banco de Dados da FATEC São José dos Campos</sub>
 </div>
 
 <br>
