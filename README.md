@@ -1,6 +1,7 @@
 # Tenebra DB ✨
 
 <div align="center">
+  <p><img src="src/main/resources/tenebra-db.gif" alt="Capa" style="width:600px;height:350px;"></p>
   <br>
   <i>A assistente de banco de dados SQLite mais segura, bonita e brasileira que existe</i>
   <br><br>
