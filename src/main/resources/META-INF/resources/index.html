@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Database AI Assistant</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:400,500,700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <style>
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        /* stylelint-disable-next-line selector-type-no-unknown */
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: #f7f8fa;
+            color: #222;
+            margin: 0;
+            transition: background 0.3s, color 0.3s;
+        }
+        body[data-theme='dark'] {
+            background: #0f1115;
+            color: #f5f5f5;
+        }
+        .container {
+            max-width: 950px;
+            min-width: 340px;
+            margin: 40px auto 0 auto;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px #0001;
+            padding: 0 32px;
+            display: flex;
+            flex-direction: column;
+            min-height: 80vh;
+            transition: background 0.3s;
+        }
+        body[data-theme='dark'] .container {
+            background: #1b1f29;
+            box-shadow: 0 4px 24px #0006;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 32px 0 8px 0;
+            flex-wrap: wrap;
+        }
+        .header-icon {
+            color: #0077cc;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+        body[data-theme='dark'] .header-icon { color: #64b5f6; }
+        .header-title { font-size: 2rem; font-weight: 700; }
+        .header-desc { font-size: 1.05rem; color: #555; }
+        body[data-theme='dark'] .header-desc { color: #bbb; }
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .small-btn {
+            background: transparent;
+            border: 1px solid #0077cc;
+            color: #0077cc;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        body[data-theme='dark'] .small-btn {
+            border-color: #64b5f6;
+            color: #bbdefb;
+        }
+        .chat-section {
+            flex: 1;
+            padding: 24px 0 24px 0;
+            height: 400px;
+            max-height: 400px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        /* stylelint-disable-next-line */
+        .msg {
+            background: #f7f8fa;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px #0001;
+            padding: 18px 22px;
+            font-size: 1.05rem;
+            line-height: 1.65;
+            max-width: 80%;
+            word-break: break-word;
+            margin-bottom: 0;
+        }
+        /* stylelint-disable-next-line */
+        .msg.user {
+            background: #eaf4fb;
+            color: #0077cc;
+            margin-left: auto;
+            margin-bottom: 12px;
+        }
+        /* stylelint-disable-next-line */
+        .msg.ia {
+            background: #fffbe6;
+            color: #222;
+            margin-right: auto;
+            margin-bottom: 12px;
+        }
+        /* stylelint-disable-next-line */
+        body[data-theme='dark'] .msg.user {
+            background: #1f3a52;
+            color: #cfe8ff;
+        }
+        /* stylelint-disable-next-line */
+        body[data-theme='dark'] .msg.ia {
+            background: #2a2f3d;
+            color: #f5f5f5;
+        }
+        .sql-block {
+            position: relative;
+            background: #11111109;
+            border: 1px solid #d0d0d0;
+            border-radius: 8px;
+            padding-top: 36px;
+            margin-top: 12px;
+        }
+        body[data-theme='dark'] .sql-block {
+            border-color: #444;
+            background: #11111122;
+        }
+        .sql-block pre {
+            margin: 0;
+            overflow-x: auto;
+        }
+        .copy-sql {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            border: none;
+            background: #0077cc;
+            color: #fff;
+            border-radius: 6px;
+            padding: 4px 12px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        body[data-theme='dark'] .copy-sql {
+            background: #64b5f6;
+            color: #0d47a1;
+        }
+        .actions-group { margin-bottom: 18px; }
+        .actions-group h4 {
+            margin: 16px 0 6px;
+            font-size: 0.95rem;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        body[data-theme='dark'] .actions-group h4 { color: #aaa; }
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            background: #fff;
+            border: 1px solid #0077cc;
+            border-radius: 8px;
+            color: #0077cc;
+            font-size: 0.93rem;
+            padding: 8px 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            transition: background 0.2s, border 0.2s;
+        }
+        .action-btn:hover { background: #eaf4fb; }
+        body[data-theme='dark'] .action-btn { background: #252b3a; border-color: #64b5f6; color: #bbdefb; }
+        body[data-theme='dark'] .action-btn:hover { background: #1b2433; }
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .input-box {
+            flex: 1;
+            padding: 16px 20px;
+            border-radius: 10px;
+            border: 1px solid #d0d0d0;
+            font-size: 1.1rem;
+            min-height: 100px;
+            max-height: 260px;
+        }
+        body[data-theme='dark'] .input-box { background: #252b3a; color: #fff; border-color: #555; }
+        .send-btn {
+            padding: 16px 24px;
+            border-radius: 10px;
+            border: none;
+            background: #0077cc;
+            color: #fff;
+            font-size: 1.15rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        body[data-theme='dark'] .send-btn { background: #64b5f6; color: #0d47a1; }
+        .input-hint { font-size: 0.92rem; color: #aaa; margin-top: 4px; }
+        body[data-theme='dark'] .input-hint { color: #888; }
+        .loader { display: none; align-items: center; gap: 8px; font-size: 0.95rem; color: #666; margin-top: 6px; }
+        .loader.active { display: flex; }
+        body[data-theme='dark'] .loader { color: #ccc; }
+        .footer {
+            padding: 12px 0;
+            text-align: right;
+            font-size: 0.9rem;
+            color: #bbb;
+        }
+        body[data-theme='dark'] .footer { color: #999; }
+        @media (max-width: 900px) {
+            .container { max-width: 98vw; padding: 0 12px; }
+            .header-actions { margin-left: 0; }
+            .chat-section { height: 320px; max-height: 320px; }
+        }
+    </style>
+</head>
+<body data-theme="light">
+<div class="container">
+    <header class="header">
+        <div class="header-icon"><i class="fa-solid fa-database"></i></div>
+        <div>
+            <div class="header-title">Database AI Assistant <span style="font-size:1.2rem;">✨</span></div>
+            <div class="header-desc">Crie, consulte e aprenda sobre bancos SQLite com linguagem natural</div>
+        </div>
+        <div class="header-actions">
+            <label for="db-selector" class="sr-only">Banco atual</label>
+            <select id="db-selector" class="small-btn" aria-label="Banco atual">
+                <option value="">Banco atual</option>
+            </select>
+            <label for="mode-toggle" class="sr-only">Modo da IA</label>
+            <button id="mode-toggle" class="small-btn" title="Alternar modo de resposta da IA">
+                <i class="fa-solid fa-robot"></i> Modo clássico
+            </button>
+            <span id="mode-tip" style="font-size:0.75rem;color:#777;max-width:160px;line-height:1.3;display:inline-block;">
+                Clássico = IA escreve texto + ```sql```. Estruturado = IA envia texto e SQL separados p/ execuções mais seguras. <a href="/docs#modo-ia" target="_blank">Saiba mais</a>
+            </span>
+            <button id="download-db" class="small-btn" title="Baixar o banco atual" aria-disabled="true"><i class="fa-solid fa-download"></i> Baixar banco</button>
+            <button id="toggle-theme" class="small-btn" title="Alternar tema"><i class="fa-solid fa-moon"></i> Tema escuro</button>
+        </div>
+    </header>
+    <main>
+        <section class="chat-section">
+            <div id="messages" class="messages"></div>
+        </section>
+        <section>
+            <div class="actions-group">
+                <h4>Comece em segundos</h4>
+                <div class="actions">
+                    <button class="action-btn" data-prompt="usar o banco 'vendas' (ou outro nome)."><i class="fa-solid fa-database"></i>Escolher banco</button>
+                    <button class="action-btn" data-prompt="No banco atual, crie a tabela Clientes com nome e email."><i class="fa-solid fa-table"></i>Criar tabela</button>
+                    <button class="action-btn" data-prompt="No banco atual, insira alguns clientes de exemplo."><i class="fa-solid fa-user-plus"></i>Inserir exemplos</button>
+                    <button class="action-btn" data-prompt="Mostre as tabelas do banco atual."><i class="fa-solid fa-list"></i>Listar tabelas</button>
+                    <button class="action-btn" data-prompt="No banco atual, mostre todos os clientes."><i class="fa-solid fa-magnifying-glass"></i>Buscar dados</button>
+                </div>
+            </div>
+            <div class="actions-group">
+                <h4>Criações completas</h4>
+                <div class="actions">
+                    <button class="action-btn" data-prompt="Vamos usar o banco vendas. Crie as tabelas Clientes (id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, email TEXT UNIQUE), Produtos (id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, tipo TEXT, quantidade INTEGER, preco REAL) e Compras (id INTEGER PRIMARY KEY AUTOINCREMENT, cliente_id INTEGER, produto_id INTEGER, quantidade INTEGER, FOREIGN KEY(cliente_id) REFERENCES Clientes(id), FOREIGN KEY(produto_id) REFERENCES Produtos(id)). Depois insira alguns dados de exemplo e mostre as compras."><i class="fa-solid fa-layer-group"></i>Criar Banco</button>
+                    <button class="action-btn" data-prompt="Usando o banco vendas, gere um único bloco ```sql``` que:\n1. Crie tabelas Fornecedores, Categorias, Produtos (relacionado a Categorias e Fornecedores), Clientes, Pedidos e ItensPedido.\n2. Inclua chaves primárias e estrangeiras apropriadas.\n3. Insira alguns dados de exemplo em cada tabela.\n4. Faça uma consulta final listando cada pedido com nome do cliente, total e quantidade de itens.\nRespeite SQLite e não crie outro banco."><i class="fa-solid fa-file-code"></i>Script SQL</button>
+                    <button class="action-btn" data-prompt="Explique de forma simples para um iniciante: o que são SELECT, WHERE, ORDER BY e LIMIT no SQLite. Mostre pequenos exemplos para cada um e quando usar cada cláusula. Depois sugira uma consulta prática usando uma tabela de Clientes."><i class="fa-solid fa-circle-question"></i>Explique…</button>
+                </div>
+            </div>
+            <div class="actions-group">
+                <h4>Construa seu pedido (prompt builder)</h4>
+                <div class="actions">
+                    <button class="action-btn builder" data-part="Quero um sistema para" data-placeholder="ex.: gerenciar estoque, academia, biblioteca"><i class="fa-solid fa-lightbulb"></i>Objetivo</button>
+                    <button class="action-btn builder" data-part="As tabelas principais são" data-placeholder="ex.: Clientes, Produtos, Pedidos"><i class="fa-solid fa-table-list"></i>Tabelas</button>
+                    <button class="action-btn builder" data-part="Cada tabela precisa das colunas" data-placeholder="ex.: Clientes(nome, email), Produtos(nome, preco)"><i class="fa-solid fa-columns"></i>Colunas</button>
+                    <button class="action-btn builder" data-part="Também quero inserir dados de exemplo e depois consultar" data-placeholder="ex.: vendas por cliente"><i class="fa-solid fa-database"></i>Extras</button>
+                    <button class="action-btn" id="builder-generate"><i class="fa-solid fa-wand-magic-sparkles"></i>Gerar prompt</button>
+                    <button class="action-btn" id="builder-clear"><i class="fa-solid fa-eraser"></i>Limpar builder</button>
+                </div>
+            </div>
+            <div class="input-row">
+                <label for="input" class="sr-only">Mensagem para a Tenebra</label>
+                <textarea id="input" class="input-box" aria-describedby="input-hint" placeholder="Digite sua pergunta natural sobre banco de dados... (Ctrl+Enter para enviar)" maxlength="2000" autofocus></textarea>
+                <button id="send" class="send-btn" aria-label="Enviar mensagem"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+            <div id="loader" class="loader" aria-live="polite"><i class="fa-solid fa-circle-notch fa-spin"></i> Tenebra está pensando…</div>
+            <div class="input-hint" id="input-hint">Use Ctrl+Enter para enviar rapidamente</div>
+        </section>
+    </main>
+    <footer class="footer">
+        Powered by AI ✨ <span id="model-info" style="color:#888;font-size:0.95em;"></span>
+        <br>
+        <a href="/docs" target="_blank" style="color:#0077cc;text-decoration:none;font-weight:500;">📘 Ver Documentação</a>
+    </footer>
+</div>
+<script>
+const messages = document.getElementById('messages');
+const input = document.getElementById('input');
+const send = document.getElementById('send');
+const loader = document.getElementById('loader');
+const toggleThemeBtn = document.getElementById('toggle-theme');
+const downloadBtn = document.getElementById('download-db');
+const dbSelector = document.getElementById('db-selector');
+const modeToggleBtn = document.getElementById('mode-toggle');
+const builderButtons = document.querySelectorAll('.action-btn.builder');
+const builderGenerate = document.getElementById('builder-generate');
+const builderClear = document.getElementById('builder-clear');
+let bancosCache = [];
+let sessionInfo = null;
+let builderParts = [];
+let selecionandoViaDropdown = false;
+let structuredMode = false;
+const modeTip = document.getElementById('mode-tip');
+const MODE_TIP_TEXT = {
+    classic: 'Clássico = IA escreve texto + ```sql``` direto no chat. <a href="/docs#modo-ia" target="_blank">Saiba mais</a>',
+    structured: 'Estruturado = IA envia texto e SQL separados. Mais seguro e previsível. <a href="/docs#modo-ia" target="_blank">Detalhes</a>'
+};
+
+let sessionId = localStorage.getItem('chatSessionId');
+if (!sessionId) {
+    sessionId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now();
+    localStorage.setItem('chatSessionId', sessionId);
+}
+
+downloadBtn.disabled = true;
+
+function esc(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function addMessage(html, sender) {
+    if (html === undefined || html === null) {
+        html = 'A resposta veio vazia do servidor.';
+    }
+    const div = document.createElement('div');
+    div.className = 'msg ' + sender;
+    if (sender === 'user') {
+        div.innerHTML = esc(html).replace(/\n/g,'<br>');
+    } else {
+        div.innerHTML = html;
+    }
+    const time = document.createElement('div');
+    time.className = 'msg-time';
+    time.textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    div.appendChild(time);
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    if (sender === 'ia') {
+        wireCopyButtons(div);
+    }
+}
+
+function wireCopyButtons(scope) {
+    const buttons = scope.querySelectorAll('.copy-sql');
+    buttons.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const targetId = btn.getAttribute('data-target');
+            const target = document.getElementById(targetId);
+            if (!target) return;
+            try {
+                await navigator.clipboard.writeText(target.textContent);
+                btn.textContent = 'Copiado!';
+                setTimeout(() => btn.textContent = 'Copiar SQL', 2000);
+            } catch (err) {
+                btn.textContent = 'Erro ao copiar';
+                setTimeout(() => btn.textContent = 'Copiar SQL', 2000);
+            }
+        }, { once: false });
+    });
+}
+
+async function refreshSessionInfo() {
+    try {
+        const res = await fetch(`/chat/session?sessionId=${encodeURIComponent(sessionId)}`);
+        if (res.ok) {
+            sessionInfo = await res.json();
+            downloadBtn.disabled = !sessionInfo.bancoAtual;
+            downloadBtn.setAttribute('aria-disabled', downloadBtn.disabled);
+            if (sessionInfo.bancoAtual) {
+                downloadBtn.title = `Baixar ${sessionInfo.bancoAtual}`;
+                if (!selecionandoViaDropdown) {
+                    dbSelector.value = sessionInfo.bancoAtual;
+                }
+            }
+        }
+    } catch (e) {
+        console.debug('Não foi possível atualizar sessão atual', e);
+    }
+}
+
+async function carregarListaBancos() {
+    try {
+        const res = await fetch('/db/list');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const bancos = await res.json();
+        bancosCache = bancos;
+        renderizarDropdown(bancos);
+    } catch (e) {
+        console.debug('Não foi possível listar bancos', e);
+        renderizarDropdown([]);
+    }
+}
+
+function renderizarDropdown(bancos) {
+    dbSelector.innerHTML = '';
+    if (!bancos || bancos.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'Nenhum banco encontrado';
+        dbSelector.appendChild(opt);
+        dbSelector.disabled = true;
+        return;
+    }
+    dbSelector.disabled = false;
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Escolha um banco';
+    dbSelector.appendChild(placeholder);
+    bancos.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.name;
+        opt.textContent = item.name;
+        dbSelector.appendChild(opt);
+    });
+    if (sessionInfo && sessionInfo.bancoAtual) {
+        dbSelector.value = sessionInfo.bancoAtual;
+    }
+}
+
+async function selecionarBanco(nome) {
+    if (!nome) return;
+    selecionandoViaDropdown = true;
+    addMessage(`Banco atualizado para ${nome}`, 'ia');
+    try {
+        const res = await fetch('/chat/session/banco', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ banco: nome, sessionId })
+        });
+        if (!res.ok) {
+            addMessage('Não conseguimos trocar o banco agora. Tente novamente mais tarde.', 'ia');
+            return;
+        }
+        sessionInfo = await res.json();
+        await carregarListaBancos();
+    } finally {
+        selecionandoViaDropdown = false;
+    }
+}
+
+function setLoading(state) {
+    loader.classList.toggle('active', state);
+    send.disabled = state;
+}
+
+async function sendMessage(msg) {
+    setLoading(true);
+    try {
+        const res = await fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: msg, sessionId: sessionId })
+        });
+        if (!res.ok) {
+            addMessage(`Erro do servidor (HTTP ${res.status}) ao processar sua solicitação.`, 'ia');
+            return;
+        }
+        const data = await res.json();
+        const text = data && typeof data.response === 'string' && data.response.trim() !== '' ? data.response : 'A IA não retornou uma resposta compreensível. Tente reformular a pergunta.';
+        addMessage(text, 'ia');
+        refreshSessionInfo();
+    } catch (e) {
+        addMessage('Erro ao conectar com a IA.', 'ia');
+    } finally {
+        setLoading(false);
+    }
+}
+
+send.onclick = function() {
+    const msg = input.value.trim();
+    if (!msg) return;
+    addMessage(msg, 'user');
+    input.value = '';
+    sendMessage(msg);
+};
+
+input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) return;
+    if ((e.key === 'Enter' && (e.ctrlKey || e.metaKey))) {
+        send.click();
+        e.preventDefault();
+    }
+});
+
+for (const btn of document.querySelectorAll('.action-btn:not(.builder):not(#builder-generate):not(#builder-clear)')) {
+    btn.onclick = function() {
+        input.value = btn.getAttribute('data-prompt').replace(/\n/g, '\n');
+        input.focus();
+    };
+}
+
+builderButtons.forEach(btn => {
+    btn.onclick = () => {
+        const part = btn.getAttribute('data-part');
+        const placeholder = btn.getAttribute('data-placeholder');
+        const resposta = prompt(part + '\n' + (placeholder || ''));
+        if (resposta) {
+            builderParts.push(part + ' ' + resposta);
+        }
+    };
+});
+
+builderGenerate.onclick = () => {
+    if (builderParts.length === 0) {
+        alert('Selecione pelo menos uma seção no construtor antes de gerar.');
+        return;
+    }
+    input.value = builderParts.join('. ') + '. Gere todo o SQL necessário, insira dados de exemplo e mostre uma consulta final.';
+    builderParts = [];
+    input.focus();
+};
+
+builderClear.onclick = () => {
+    builderParts = [];
+    alert('Construtor limpo! Selecione as seções novamente.');
+};
+
+fetch('/chat/model')
+    .then(res => res.text())
+    .then(model => {
+        document.getElementById('model-info').textContent = `Modelo: ${model}`;
+    });
+
+function atualizarUiModo() {
+    modeToggleBtn.innerHTML = structuredMode
+        ? '<i class="fa-solid fa-diagram-project"></i> Modo estruturado'
+        : '<i class="fa-solid fa-robot"></i> Modo clássico';
+    modeTip.innerHTML = structuredMode ? MODE_TIP_TEXT.structured : MODE_TIP_TEXT.classic;
+}
+
+async function carregarModo() {
+    try {
+        const res = await fetch('/chat/mode');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        structuredMode = !!data.structured;
+    } catch (err) {
+        console.debug('Não foi possível buscar modo atual', err);
+        structuredMode = false;
+    }
+    atualizarUiModo();
+}
+
+async function alternarModo() {
+    try {
+        const res = await fetch('/chat/mode', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ structured: !structuredMode })
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        structuredMode = !!data.structured;
+        atualizarUiModo();
+    } catch (err) {
+        alert('Não foi possível trocar o modo agora. Tente novamente.');
+    }
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+    if (localStorage.getItem('tenebra-theme') === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+        toggleThemeBtn.innerHTML = '<i class="fa-solid fa-sun"></i> Tema claro';
+    }
+
+    toggleThemeBtn.onclick = () => {
+        const newTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', newTheme);
+        toggleThemeBtn.innerHTML = newTheme === 'dark'
+            ? '<i class="fa-solid fa-sun"></i> Tema claro'
+            : '<i class="fa-solid fa-moon"></i> Tema escuro';
+        localStorage.setItem('tenebra-theme', newTheme);
+    };
+
+    downloadBtn.onclick = async () => {
+        await refreshSessionInfo();
+        if (!sessionInfo || !sessionInfo.bancoAtual) {
+            alert('Selecione um banco na conversa (ex.: "usar o banco vendas") antes de baixar.');
+            return;
+        }
+        window.location.href = `/db/download?db=${encodeURIComponent(sessionInfo.bancoAtual)}`;
+    };
+
+    await carregarModo();
+    try {
+        const res = await fetch('/chat/welcome');
+        const data = await res.json();
+        addMessage(data.response, 'ia');
+    } catch (e) {
+        addMessage('Não foi possível carregar a mensagem de boas-vindas.', 'ia');
+    }
+
+    await carregarListaBancos();
+    if (dbSelector.disabled) {
+        addMessage('Nenhum banco foi encontrado ainda. Peça para criar um banco ou use o botão Escolher banco.', 'ia');
+    }
+
+    refreshSessionInfo();
+});
+
+modeToggleBtn.addEventListener('click', () => {
+    alternarModo();
+});
+</script>
+</body>
+</html>

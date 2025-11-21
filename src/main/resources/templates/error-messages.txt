@@ -1,0 +1,12 @@
+# Mensagens amigáveis para erros SQL
+# Formato: codigo|frase|mensagem
+ESQL0001|table .* already exists|A tabela já existe. Se precisar, use CREATE TABLE IF NOT EXISTS.
+ESQL0002|no such table: (.*)|A tabela $1 não existe. Verifique o nome ou crie a tabela primeiro.
+ESQL0010|tabela (.*) não existe|A tabela $1 não existe. Verifique o nome ou peça ajuda para criá-la.
+ESQL0003|no such column: (.*)|A coluna $1 não existe nessa tabela.
+ESQL0011|coluna (.*) não existe|A coluna $1 não existe nessa tabela. Confira o nome ou crie a coluna.
+ESQL0004|syntax error|O SQLite não entendeu o comando. Confira a sintaxe.
+ESQL0005|UNIQUE constraint failed|Esse valor já existe e a coluna não permite duplicados.
+ESQL0006|FOREIGN KEY constraint failed|Você está referenciando um registro inexistente. Confira os ids usados.
+ESQL0007|datatype mismatch|O valor informado não combina com o tipo da coluna.
+ESQL0008|CHECK constraint failed|Os dados não passaram na validação definida na tabela.
