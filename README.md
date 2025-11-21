@@ -1,8 +1,7 @@
 # Tenebra DB ✨
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/seu-usuario/tenebra-db/main/screenshot-light.png" width="800" alt="Tenebra DB Light Theme"/>
-  <br><br>
+  <br>
   <i>A assistente de banco de dados SQLite mais segura, bonita e brasileira que existe</i>
   <br><br>
   
@@ -53,10 +52,9 @@ Perfeita para iniciantes e avançados!
 ## 🖼️ Screenshots
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/seu-usuario/tenebra-db/main/screenshot-dark.png" width="49%" alt="Dark Theme"/>
-  <img src="https://raw.githubusercontent.com/seu-usuario/tenebra-db/main/screenshot-light.png" width="49%" alt="Light Theme"/>
+  <img src="src/main/resources/tenebra-dark.png" width="49%" alt="Dark Theme"/>
+  <img src="src/main/resources/tenebra-light.png" width="48%" alt="Light Theme"/>
   <br><br>
-  <img src="https://raw.githubusercontent.com/seu-usuario/tenebra-db/main/screenshot-structured.png" width="800" alt="Modo Estruturado"/>
 </div>
 
 ## Pré‑requisitos
@@ -608,7 +606,7 @@ Se nenhuma solução acima funcionou:
 ## 📄 Licença
 MIT © 2025 - Rodrigo Castro
 
-Para guias detalhados (classes, métodos, fluxo completo e diagramas), abra a documentação em `/docs` ou veja `src/main/resources/DOCUMENTACAO.MD`.
+Para guias detalhados (classes, métodos, fluxo completo e diagramas), abra a documentação em `/docs` ou veja [DOCUMENTACAO](src/main/resources/DOCUMENTACAO.MD).
   
 
 
